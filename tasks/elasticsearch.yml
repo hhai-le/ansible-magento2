@@ -1,0 +1,27 @@
+---
+- name: remove old elasticsearch gpg key 
+  file:
+    path: /etc/apt/trusted.gpg.d/elasticsearch.gpg
+    state: absent
+
+- name: add elasticsearch gpg key
+  shell: wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch| gpg --dearmor -o /etc/apt/trusted.gpg.d/elasticsearch.gpg
+
+- name: add elasticsearch repository
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/7.x/apt stable main
+    state: present
+    filename: elasticsearch
+
+- name: install elasticsearch package
+  apt:
+    name: elasticsearch
+    state: present
+    update_cache: true
+
+- name: start elasticsearch
+  systemd:
+    name: elasticsearch
+    state: started
+    enabled: true
+    

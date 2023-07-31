@@ -1,0 +1,54 @@
+---
+- name: remove old mysql gpg key 
+  file:
+    path: /etc/apt/trusted.gpg.d/mysql.gpg
+    state: absent
+
+- name: add mysql gpg key
+  shell: wget -qO - https://repo.mysql.com/RPM-GPG-KEY-mysql-2022 | gpg --dearmor -o /etc/apt/trusted.gpg.d/mysql.gpg
+
+- name: add mysql repository
+  apt_repository:
+    repo: deb http://repo.mysql.com/apt/debian/ "{{ansible_distribution_release}}" mysql-8.0
+    state: present
+    filename: mysql.list
+
+- name: configure package installation ... root password 
+  debconf:
+    name: mysql-community-server
+    question: mysql-community-server/root-pass
+    vtype: password
+    value: password
+
+- name: configure package installation ... confirm root password
+  debconf:
+    name: mysql-community-server
+    question: mysql-community-server/re-root-pass
+    vtype: password
+    value: password
+
+- name: configure package installation ... authentication method
+  debconf:
+    name: mysql-community-server
+    question: mysql-server/default-auth-override
+    value: Use Strong Password Encryption (RECOMMENDED)
+    vtype: select
+
+- name: install mysql
+  apt:
+    name: mysql-server
+    update_cache: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
+- name: "create database for {{db_name}} "
+  shell: "mysql -u{{mysql_user}} -p{{mysql_password}} -e \"CREATE DATABASE {{db_name}}\""
+
+- name: "create user for {{db_name}} "
+  shell: "mysql -u{{mysql_user}} -p{{mysql_password}} -e \"CREATE USER '{{db_user}}'@'localhost' IDENTIFIED BY '{{db_pass}}'\""
+
+- name: "grant user for {{db_name}} " 
+  shell: "mysql -u{{mysql_user}} -p{{mysql_password}} -e \"GRANT ALL ON {{db_name}}.* TO 'magento'@'localhost'\""
+
+- name: FLUSH PRIVILEGES 
+  shell: "mysql -u{{mysql_user}} -p{{mysql_password}} -e \"FLUSH PRIVILEGES\""

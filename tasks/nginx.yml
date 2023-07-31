@@ -1,0 +1,17 @@
+---
+- name: install nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: magento configuration
+  template:
+    src: magento.conf
+    dest: /etc/nginx/sites-enabled/magento.conf
+
+- name: edit user for nginx
+  lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: 'user .*'
+    line: "user {{app_user}};"
+

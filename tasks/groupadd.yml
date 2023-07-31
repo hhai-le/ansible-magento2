@@ -1,0 +1,5 @@
+---
+- name: add group for application
+  group:
+    name: "{{app_group}}"
+    state: present

@@ -1,0 +1,16 @@
+---
+- name: add gpg key for redis
+  shell: wget -qO - https://packages.redis.io/gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/redis.gpg
+
+- name: install redis repo
+  apt_repository:
+    repo: deb [signed-by=/etc/apt/trusted.gpg.d/redis.gpg] https://packages.redis.io/deb/ "{{ansible_distribution_release}}" main
+    state: present
+    filename: redis
+    update_cache: true
+
+- name: install redis
+  apt:
+    name: redis-server
+    state: present
+  

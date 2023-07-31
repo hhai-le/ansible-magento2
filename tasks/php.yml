@@ -1,0 +1,67 @@
+---
+#- name: install key
+#  get_url:
+#    url: https://packages.sury.org/php/apt.gpg 
+#    dest: /etc/apt/trusted.gpg.d/sury_repo.gpg
+#    mode: '0644'
+#    force: true
+
+- name: remove old key
+  file:
+    path: /etc/apt/trusted.gpg.d/sury_repo.gpg
+    state: absent
+    
+
+- name: install key 
+  shell: wget -qO - https://packages.sury.org/php/apt.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/sury_repo.gpg
+
+- name: install php repo
+  apt_repository:
+    repo: deb https://packages.sury.org/php/ "{{ansible_distribution_release}}" main
+    state: present
+    filename: sury_repo
+    update_cache: true
+
+- name: install php packages
+  apt:
+    name: 
+      - php8.1-bcmath
+      - php8.1-common
+      - php8.1-curl
+      - php8.1-fpm
+      - php8.1-gd
+      - php8.1-intl
+      - php8.1-mbstring
+      - php8.1-mysql
+      - php8.1-soap
+      - php8.1-xml
+      - php8.1-xsl
+      - php8.1-zip
+      - php8.1-cli
+    state: present
+    update_cache: true
+
+- name: edit php.ini
+  lineinfile:
+    path: /etc/php/8.1/fpm/php.ini
+    regexp: 'memory_limit = .*'
+    line: memory_limit = 768M
+
+- name: edit php.ini
+  lineinfile:
+    path: /etc/php/8.1/fpm/php.ini
+    regexp: 'upload_max_filesize = .*'
+    line: upload_max_filesize = 128M
+
+- name: edit php.ini
+  lineinfile:
+    path: /etc/php/8.1/fpm/php.ini
+    regexp: 'zlib.output_compression = .*'
+    line: zlib.output_compression = on
+
+- name: edit php.ini
+  lineinfile:
+    path: /etc/php/8.1/fpm/php.ini
+    regexp: 'max_execution_time = .*'
+    line: max_execution_time = 18000
+

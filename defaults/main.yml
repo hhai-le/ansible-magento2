@@ -1,0 +1,22 @@
+---
+# defaults file for magento2
+app_user: test-ssh
+app_group: clp
+hostname: debian-server
+db_user: magento
+db_pass: magento
+db_name: magentodb
+db_host: localhost
+mysql_user: root
+mysql_password: password
+magento_domain: http://test.mgt.com
+magento_admin_firstname: admin
+magento_admin_lastname: admin
+magento_admin_email: admin@admin.com
+magento_admin_username: admin
+magento_admin_password: P@ssw0rd123
+magento_language: en_US
+magento_currency: USD
+magento_timezone: Asia/Ho_Chi_Minh
+magento_retries: 1
+magento_path: /opt/magento2

@@ -1,0 +1,66 @@
+---
+- name: download php composer
+  get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/composer-setup.php
+    mode: '0644'
+
+- name: install php composer
+  shell: "php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
+
+- name: copy composer composer.json
+  template:
+    src: composer.json.j2
+    dest: /tmp/composer.json
+    mode: '0600'
+    owner: "{{app_user}}"
+    group: "{{app_group}}"
+
+- name: ensure /opt/magento2 is exist
+  file:
+    path: /opt/magento2
+    state: directory
+    owner: "{{app_user}}"
+    group: "{{app_group}}"
+
+- name: create magento config
+  shell: composer config --global http-basic.repo.magento.com 62554eb5c91d9f5400b299ced73ddc69 12f33a3a0a71c6575403941551dfe5ad
+  args:
+    chdir: /tmp
+  become_user: "{{app_user}}"
+
+- name: create magento project
+  shell: composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.4 {{magento_path}}
+  async: 2100
+  args:
+    chdir: /tmp
+  register: install_magento
+  become_user: "{{app_user}}"
+
+#- name: check if magento installation is complete
+#  async_status:
+#    jid: "{{install_magento.ansible_job_id}}"
+#  register: job_result
+#  until: job_result.finished
+#  delay: 3
+#  retries: 300
+
+- name: install magento
+  shell: |
+    bin/magento setup:install \
+    --base-url="{{magento_domain}}" \
+    --db-host="{{db_host}}" \
+    --db-name="{{db_name}}" \
+    --db-user="{{db_user}}" \
+    --db-password="{{db_pass}}" \
+    --admin-firstname="{{magento_admin_firstname}}" \
+    --admin-lastname="{{magento_admin_lastname}}" \
+    --admin-email="{{magento_admin_email}}" \
+    --admin-user="{{magento_admin_username}}" \
+    --admin-password="{{magento_admin_password}}" \
+    --language="{{magento_language}}" \
+    --currency="{{magento_currency}}" \
+    --timezone="{{magento_timezone}}" \
+    --use-rewrites="{{magento_retries}}"
+  args:
+    chdir: "{{magento_path}}"

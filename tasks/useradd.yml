@@ -1,0 +1,7 @@
+---
+- name: "add user {{app_user}} "
+  user:
+    name: "{{app_user}}"
+    comment: user for application
+    group: "{{app_group}}"
+    shell: /bin/bash

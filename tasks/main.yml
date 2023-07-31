@@ -1,0 +1,31 @@
+---
+## tasks file for magento2
+- name: groupadd
+  include_tasks: groupadd.yml
+
+- name: adduser 
+  include_tasks: useradd.yml
+
+- name: change hostname
+  include_tasks: hostname.yml
+
+- name: install common packages
+  include_tasks: common.yml
+
+- name: install php8.1
+  include_tasks: php.yml
+
+- name: install mysql 
+  include_tasks: mysql.yml
+
+- name: install elasticsearch 
+  include_tasks: elasticsearch.yml
+    
+- name: install magento
+  include_tasks: magento.yml
+
+- name: install redis
+  include_tasks: redis.yml
+
+- name: config cache
+  include_tasks: redis_cache.yml
